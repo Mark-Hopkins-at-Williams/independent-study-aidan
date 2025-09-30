@@ -1,26 +1,10 @@
 import random
-import sys
 from typing import Dict, Tuple, List, Optional, Iterator, Callable
 from torch.utils.data import DataLoader, IterableDataset
-from transformers import AutoTokenizer
-import warnings
 
-def load_tokenizer(model_name: str):
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            message="`clean_up_tokenization_spaces` was not set.*",
-            category=FutureWarning,
-            module="transformers.tokenization_utils_base",
-        )
-        try:
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-        except OSError:
-            sys.stderr.write('Tokenizer not found. Using NLLB tokenizer instead.\n')
-            sys.stderr.flush()
-            tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
-    return tokenizer
+from tokenization import Tokenizer
 
+CorpusId = Tuple[str, str] # typedef
 
 class Bitext(IterableDataset):
     def __init__(self, lang1_file: str, lang2_file: str, lines: Optional[Tuple[int, int]] = None):
@@ -132,32 +116,22 @@ class TokenizedMixtureOfBitexts:
     def __init__(
         self,
         mixture_of_bitexts: MixtureOfBitexts,
-        tokenizer: AutoTokenizer,
-        max_length: int,
-        lang_codes: Dict[Tuple[str, str], str],
-        permutation_map: Dict[str, Callable[[int], int]] = dict()
+        tokenizer: Tokenizer,
+        lang_codes: Dict[CorpusId, str],
+        permutation_map: Dict[CorpusId, Callable[[int], int]] = dict()
     ):
         self.mixture_of_bitexts = mixture_of_bitexts
         self.tokenizer = tokenizer
-        self.max_length = max_length
         self.lang_codes = lang_codes
         self.permutation_map = permutation_map
 
-    def _tokenize(self, sents: List[str], lang: str, alt_pad_token: int = None):
-        self.tokenizer.src_lang = self.lang_codes[lang]
-        tokens = self.tokenizer(
-            sents,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=self.max_length,
-        )
+    def _tokenize(self, sents: List[str], corpus: CorpusId, alt_pad_token: int = None):
+        tokens = self.tokenizer(sents, lang_code = self.lang_codes[corpus])
         if alt_pad_token is not None:
-            tokens.input_ids[tokens.input_ids == self.tokenizer.pad_token_id] = (
-                alt_pad_token
-            )
-        if lang in self.permutation_map: # apply the permutation
-            p = self.permutation_map[lang]
+            pad_token_id = self.tokenizer.get_special_tokens()['<pad>']
+            tokens.input_ids[tokens.input_ids == pad_token_id] = alt_pad_token            
+        if corpus in self.permutation_map: # apply the permutation
+            p = self.permutation_map[corpus]
             tokens.input_ids.apply_(p) # modifies in-place
         return tokens
 

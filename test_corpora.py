@@ -1,8 +1,8 @@
 import json
 import unittest
-from corpora import load_tokenizer, Bitext, MixtureOfBitexts, TokenizedMixtureOfBitexts
+from corpora import Bitext, MixtureOfBitexts, TokenizedMixtureOfBitexts
 from torch import tensor
-
+from tokenization import NllbTokenizer
 
 class TestUtil(unittest.TestCase):
     def test_streaming_bitext(self):
@@ -31,6 +31,8 @@ class TestUtil(unittest.TestCase):
         ]
         result = [line for line in bitext]
         self.assertEqual(expected, result)
+
+
 
     def test_mixture_of_bitexts(self):
         bitext1 = Bitext("test_files/lang1.txt", "test_files/lang2.txt")
@@ -150,7 +152,9 @@ class TestUtil(unittest.TestCase):
             config = json.load(f)
         mix = MixtureOfBitexts.create_from_config(config, "dev")
         next_batch = mix.next_batch()
-        print(next_batch)
+        expected_option1 = (('The cat slept.', 'She runs fast.'), ('Le chat a dormi.', 'Elle court vite.'), ('l1-l2', 'lang1'), ('l1-l2', 'lang2'))
+        expected_option2 = (('The cat slept.', 'She runs fast.'), ('Die Katze hat geschlafen.', 'Sie rennt schnell.'), ('l1-l3', 'lang1'), ('l1-l3', 'lang3'))
+        self.assertIn(next_batch, [expected_option1, expected_option2])
 
     def test_mixture_of_bitexts_limited_lines1(self):
         text_files = {
@@ -205,15 +209,18 @@ class TestUtil(unittest.TestCase):
 
     def test_tokenized_mixture_of_bitexts(self):
         text_files = {
-            "eng_Latn": "test_files/lang1.txt",
-            "fra_Latn": "test_files/lang2.txt",
+            ("test", "eng"): "test_files/lang1.txt",
+            ("test", "fra"): "test_files/lang2.txt",
+        }
+        lang_codes = {
+            ("test", "eng"): "eng_Latn",
+            ("test", "fra"): "fra_Latn"
         }
         mix = MixtureOfBitexts.create_from_files(
-            text_files, [("eng_Latn", "fra_Latn", None)], 3
+            text_files, [(("test", "eng"), ("test", "fra"), None)], 3
         )
-        base_model = "facebook/nllb-200-distilled-600M"
-        tokenizer = load_tokenizer(base_model)
-        tmob = TokenizedMixtureOfBitexts(mix, tokenizer, max_length=128)
+        tokenizer = NllbTokenizer("600M")
+        tmob = TokenizedMixtureOfBitexts(mix, tokenizer, lang_codes=lang_codes)
         lang1_batch, lang2_batch, _, _ = tmob.next_batch()
         expected_lang1_token_ids = tensor(
             [
@@ -258,15 +265,18 @@ class TestUtil(unittest.TestCase):
 
     def test_tokenized_mixture_of_bitexts_truncated(self):
         text_files = {
-            "eng_Latn": "test_files/lang1.txt",
-            "fra_Latn": "test_files/lang2.txt",
+            ("test", "eng"): "test_files/lang1.txt",
+            ("test", "fra"): "test_files/lang2.txt",
+        }
+        lang_codes = {
+            ("test", "eng"): "eng_Latn",
+            ("test", "fra"): "fra_Latn"
         }
         mix = MixtureOfBitexts.create_from_files(
-            text_files, [("eng_Latn", "fra_Latn", None)], 3
+            text_files, [(("test", "eng"), ("test", "fra"), None)], 3
         )
-        base_model = "facebook/nllb-200-distilled-600M"
-        tokenizer = load_tokenizer(base_model)
-        tmob = TokenizedMixtureOfBitexts(mix, tokenizer, max_length=8)
+        tokenizer = NllbTokenizer("600M", max_length=8)
+        tmob = TokenizedMixtureOfBitexts(mix, tokenizer, lang_codes=lang_codes)
         lang1_batch, lang2_batch, _, _ = tmob.next_batch()
         expected_lang1_token_ids = tensor(
             [
@@ -311,18 +321,19 @@ class TestUtil(unittest.TestCase):
 
     def test_tokenized_mixture_of_bitexts_w_permutations(self):
         text_files = {
-            "eng_Latn": "test_files/lang1.txt",
-            "fra_Latn": "test_files/lang2.txt",
+            ("test", "eng"): "test_files/lang1.txt",
+            ("test", "fra"): "test_files/lang2.txt",
+        }
+        lang_codes = {
+            ("test", "eng"): "eng_Latn",
+            ("test", "fra"): "fra_Latn"
         }
         mix = MixtureOfBitexts.create_from_files(
-            text_files, [("eng_Latn", "fra_Latn", None)], 3
+            text_files, [(("test", "eng"), ("test", "fra"), None)], 3
         )
-        base_model = "facebook/nllb-200-distilled-600M"
-        tokenizer = load_tokenizer(base_model)
-        pmap = {"eng_Latn": lambda x: x + 1, "fra_Latn": lambda x: x + 2}
-        tmob = TokenizedMixtureOfBitexts(
-            mix, tokenizer, max_length=128, permutation_map=pmap
-        )
+        tokenizer = NllbTokenizer("600M")
+        pmap = {("test", "eng"): lambda x: x + 1, ("test", "fra"): lambda x: x + 2}        
+        tmob = TokenizedMixtureOfBitexts(mix, tokenizer, lang_codes=lang_codes, permutation_map=pmap)
         lang1_batch, lang2_batch, _, _ = tmob.next_batch()
         expected_lang1_token_ids = tensor(
             [
