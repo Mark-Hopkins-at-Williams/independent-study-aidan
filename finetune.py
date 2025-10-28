@@ -18,20 +18,20 @@ from transformers import (
     get_constant_schedule_with_warmup,
 )
 from configure import USE_CUDA
-from corpora import MixtureOfBitexts, TokenizedMixtureOfBitexts
+from corpora import MixtureOfBitexts, TokenizedMixtureOfBitexts, load_tokenizer
 from permutations import (
     create_random_permutation_with_fixed_points,
     save_permutation_map,
 )
 from validate import translate_tokenized_mixture_of_bitexts, evaluate_translations
-from tokenization import NllbTokenizer, HuggingfaceTokenizer
+
 
 def cleanup():
     gc.collect()
     torch.cuda.empty_cache()
 
 
-def prepare_model(base_model: str, freeze_decoder: bool, freeze_encoder: bool, should_finetune: bool):
+def prepare_model(base_model: str, freeze_decoder: bool, freeze_encoder: bool, should_finetune: bool, should_resize: bool, tokenizer):
     if should_finetune:
         model = AutoModelForSeq2SeqLM.from_pretrained(base_model) 
         print('loaded pretrained model')
@@ -39,6 +39,8 @@ def prepare_model(base_model: str, freeze_decoder: bool, freeze_encoder: bool, s
         model_config = AutoConfig.from_pretrained(base_model)
         model = AutoModelForSeq2SeqLM.from_config(model_config)
         print('loaded architecture only')
+    if should_resize:
+        model.resize_token_embeddings(len(tokenizer)) 
     if hasattr(model.config, "max_length"):  # this should be in a GenerationConfig
         delattr(model.config, "max_length")
     if freeze_decoder:
@@ -86,18 +88,20 @@ def plot_losses(train_x, train_y, dev_x, dev_y, out_path: str):
 def finetune(
     train_data,
     dev_data,
+    tokenizer,
     base_model: str,
     model_dir: str,
     training_steps: int,
-    report_every: int,
-    validate_every: int,
-    patience: int,
+    report_every: int = 500,
+    validate_every: int = 500,
+    patience: int = 5,
     freeze_decoder: bool = False,
     freeze_encoder: bool = False,
-    should_finetune: bool = True
+    should_finetune: bool = True,
+    should_resize: bool = False
 ):
     print(f"Training {model_dir}")
-    model = prepare_model(base_model, freeze_decoder, freeze_encoder, should_finetune)
+    model = prepare_model(base_model, freeze_decoder, freeze_encoder, should_finetune, should_resize, tokenizer)
     
     if should_finetune:
         optimizer = Adafactor(
@@ -196,9 +200,6 @@ def main():
     all_corpora = config["corpora"]
     params = config["finetuning_parameters"]
     should_finetune = params["finetune"] if "finetune" in params else True
-    report_every = params["report_every"] if "report_every" in params else 500
-    validate_every = params["validate_every"] if "validate_every" in params else 500
-    patience = params["patience"] if "patience" else 1000000000
     
     # Create unique model directory
     base_dir = config["model_dir"]
@@ -214,17 +215,25 @@ def main():
         for key in config['corpora'][corpus]:
             lang_codes[(corpus, key)] = config['corpora'][corpus][key]['lang_code']
     
+    
 
     train_data = MixtureOfBitexts.create_from_config(config, "train", only_once_thru=False)    
     dev_data = MixtureOfBitexts.create_from_config(config, "dev", only_once_thru=False)
     model_name = params["base_model"]
-    if model_name == "facebook/nllb-200-distilled-600M":   
-        tokenizer = NllbTokenizer("600M", max_length=128) # set max length?
-    elif model_name == "facebook/nllb-200-distilled-1.3B": 
-        tokenizer = NllbTokenizer("1.3B", max_length=128)
+    tokenizer = load_tokenizer(model_name)
+
+    #Check if new languages need to be added
+    cur_langs = set(tokenizer.additional_special_tokens)
+    input_langs = set(lang_codes.values()) 
+    langs_to_add = list(input_langs - cur_langs)
+    if len(langs_to_add) > 0:
+        resize = True
     else:
-        tokenizer = HuggingfaceTokenizer(model_name, max_length=128)
-        
+        resize = False
+
+    new_special_tokens = tokenizer.additional_special_tokens + langs_to_add
+    tokenizer.add_special_tokens({'additional_special_tokens': new_special_tokens})
+
     # Create the permutations
     permutations = dict()
     pmap = dict()
@@ -235,7 +244,7 @@ def main():
                 if permutation_index not in permutations:
                     permutations[permutation_index] = (
                         create_random_permutation_with_fixed_points(
-                            len(tokenizer), list(tokenizer.get_special_tokens().values())
+                            len(tokenizer), tokenizer.all_special_ids
                         )
                     )
                 pmap[(corpus, language)] = permutations[permutation_index]
@@ -250,15 +259,14 @@ def main():
     finetune(
         tokenized_train,
         tokenized_dev,
+        tokenizer, 
         model_name,
         model_dir,
         params['num_steps'],
         freeze_decoder=params['freeze_decoder'] if 'freeze_decoder' in params else False,
         freeze_encoder=params['freeze_encoder'] if 'freeze_encoder' in params else False,        
         should_finetune=should_finetune,
-        report_every=report_every,
-        validate_every=validate_every,
-        patience=patience
+        should_resize= resize
     )
 
     test_data = MixtureOfBitexts.create_from_config(config, "test", only_once_thru=True)    
