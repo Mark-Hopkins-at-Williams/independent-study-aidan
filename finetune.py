@@ -18,12 +18,13 @@ from transformers import (
     get_constant_schedule_with_warmup,
 )
 from configure import USE_CUDA
-from corpora import MixtureOfBitexts, TokenizedMixtureOfBitexts, load_tokenizer
+from corpora import MixtureOfBitexts, TokenizedMixtureOfBitexts
 from permutations import (
     create_random_permutation_with_fixed_points,
     save_permutation_map,
 )
 from validate import translate_tokenized_mixture_of_bitexts, evaluate_translations
+from tokenization import NllbTokenizer, HuggingfaceTokenizer
 
 
 def cleanup():
@@ -92,9 +93,9 @@ def finetune(
     base_model: str,
     model_dir: str,
     training_steps: int,
-    report_every: int = 500,
-    validate_every: int = 500,
-    patience: int = 5,
+    report_every: int,
+    validate_every: int,
+    patience: int,
     freeze_decoder: bool = False,
     freeze_encoder: bool = False,
     should_finetune: bool = True,
@@ -220,19 +221,22 @@ def main():
     train_data = MixtureOfBitexts.create_from_config(config, "train", only_once_thru=False)    
     dev_data = MixtureOfBitexts.create_from_config(config, "dev", only_once_thru=False)
     model_name = params["base_model"]
-    tokenizer = load_tokenizer(model_name)
-
+    if model_name == "facebook/nllb-200-distilled-600M":   
+        tokenizer = NllbTokenizer("600M", max_length=128) # set max length?
+    elif model_name == "facebook/nllb-200-distilled-1.3B": 
+        tokenizer = NllbTokenizer("1.3B", max_length=128)
+        
     #Check if new languages need to be added
-    cur_langs = set(tokenizer.additional_special_tokens)
+    special_tokens = list(tokenizer.get_special_tokens().keys())
+    cur_langs = set(special_tokens)
     input_langs = set(lang_codes.values()) 
     langs_to_add = list(input_langs - cur_langs)
-    if len(langs_to_add) > 0:
-        resize = True
-    else:
-        resize = False
+    resize = (len(langs_to_add) > 0)
+    if resize:
+        print(f"Adding unrecognized lang codes: {langs_to_add}")
 
-    new_special_tokens = tokenizer.additional_special_tokens + langs_to_add
-    tokenizer.add_special_tokens({'additional_special_tokens': new_special_tokens})
+    new_special_tokens = special_tokens + langs_to_add
+    tokenizer.replace_special_tokens(new_special_tokens)
 
     # Create the permutations
     permutations = dict()
@@ -244,7 +248,7 @@ def main():
                 if permutation_index not in permutations:
                     permutations[permutation_index] = (
                         create_random_permutation_with_fixed_points(
-                            len(tokenizer), tokenizer.all_special_ids
+                            len(tokenizer), list(tokenizer.get_special_tokens().values())
                         )
                     )
                 pmap[(corpus, language)] = permutations[permutation_index]
@@ -266,7 +270,10 @@ def main():
         freeze_decoder=params['freeze_decoder'] if 'freeze_decoder' in params else False,
         freeze_encoder=params['freeze_encoder'] if 'freeze_encoder' in params else False,        
         should_finetune=should_finetune,
-        should_resize= resize
+        should_resize= resize,
+        report_every=params['report_every'],
+        validate_every=params['validate_every'],
+        patience=params['patience']
     )
 
     test_data = MixtureOfBitexts.create_from_config(config, "test", only_once_thru=True)    
