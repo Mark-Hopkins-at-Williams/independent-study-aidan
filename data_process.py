@@ -1,0 +1,106 @@
+import json
+import os
+from pathlib import Path
+import random
+
+source_folder = "data"
+
+#language pairs from AmericasNLP 2025
+language_pairs = ["ashaninka-spanish","awajun-spanish","aymara-spanish","bribri-spanish","chatino-spanish","guarani-spanish","nahuatl-spanish","otomi-spanish","quechua-spanish","raramuri-spanish","shipibo_konibo-spanish", "wayuu-spanish","wixarika-spanish"]
+extension_dictionary ={"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-spanish":"aym",
+                       "bribri-spanish":"bzd","chatino-spanish":"ctp","guarani-spanish":"gn","nahuatl-spanish":"nah",
+                       "otomi-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
+
+dev_split_ratio = 0.1
+random.seed(42)
+
+config = {
+    "model_dir": "models/model-test",
+    "finetuning_parameters": {
+        "base_model": "facebook/nllb-200-distilled-600M",
+        "finetune": True,
+        "freeze_encoder": False,
+        "freeze_decoder": False,
+        "batch_size": 32,
+        "num_steps": 10000,
+        "add_new_lang_codes": True,
+        "add_new_tokens": True,
+        "new_lang_size": 2**7,
+        "IBT": True,
+        "IBT_iterations": 1,
+        "IBT_training_steps": 1000,
+        "IBT_Langs": [],
+        "lang_extensions": extension_dictionary
+    },
+    "corpora": {},
+    "bitexts": []
+}
+
+for label_pair in language_pairs:
+    lang_folder = f"{source_folder}/{label_pair}"
+    #write out the training
+    with open(f"{lang_folder}/train.{extension_dictionary[label_pair]}", "r", encoding="utf-8") as f_indigenous, \
+        open(f"{lang_folder}/train.es", "r") as f_es:
+            src_lines = f_indigenous.readlines()
+            tgt_lines = f_es.readlines()
+    
+    #split traing into train and test
+    paired_data = list(zip(src_lines, tgt_lines))
+    random.shuffle(paired_data)
+    
+     # Split into train and dev
+    total_lines = len(paired_data)
+    dev_size = int(total_lines * dev_split_ratio)
+    train_size = total_lines - dev_size
+    
+    train_data = paired_data[:train_size]
+    dev_data = paired_data[train_size:]
+
+    with open(f"{lang_folder}/processedTrain.{extension_dictionary[label_pair]}", "w", encoding="utf-8") as f_indigenous, \
+        open(f"{lang_folder}/processedTrain.es", "w") as f_es:
+            for src_line, tgt_line in train_data:
+                  f_indigenous.write(src_line)
+                  f_es.write(tgt_line)
+    
+    with open(f"{lang_folder}/trainDev.{extension_dictionary[label_pair]}", "w", encoding="utf-8") as f_indigenous, \
+        open(f"{lang_folder}/trainDev.es", "w") as f_es:
+            for src_line, tgt_line in dev_data:
+                  f_indigenous.write(src_line)
+                  f_es.write(tgt_line)
+    
+    src, _ = label_pair.split("-")
+    tgt = "es"
+    corpus_key = f"{label_pair}"
+    config["corpora"][corpus_key] = {
+        src: {
+            "lang_code": f"{extension_dictionary[label_pair]}_Latn",
+            "train":[f"{lang_folder}/processedTrain.{extension_dictionary[label_pair]}"],
+            "dev": [f"{lang_folder}/trainDev.{extension_dictionary[label_pair]}"],
+            "test": [f"{lang_folder}/dev.{extension_dictionary[label_pair]}"],
+            "permutation": 0
+        },
+        "es": {
+            "lang_code": "es_Latn",
+            "train":[f"{lang_folder}/processedTrain.es"],
+            "dev": [f"{lang_folder}/trainDev.es"],
+            "test": [f"{lang_folder}/dev.es"],
+            "permutation": 0
+        }
+    }
+
+    config["bitexts"].append({
+        "corpus" : f"{label_pair}",
+        "src" : src, 
+        "tgt" : tgt,
+        "train_lines": None,
+    })
+    config["bitexts"].append({
+        "corpus" : f"{label_pair}",
+        "src" : tgt, 
+        "tgt" : src,
+        "train_lines": None,
+        })
+    
+
+with open("config.json", "w", encoding="utf-8") as f:
+    json.dump(config, f, ensure_ascii=False, indent=4)
