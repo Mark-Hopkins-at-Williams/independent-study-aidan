@@ -5,4 +5,4 @@
 #SBATCH -o logs/log_%j.out
 #SBATCH -e logs/log_%j.err
 #SBATCH --gres=gpu:1
-python finetune.py --config examples/example1.json
+python finetuneV2.py --config /mnt/storage/ahousenbold/independent-study-aidan/config.json

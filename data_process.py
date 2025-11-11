@@ -11,11 +11,12 @@ extension_dictionary ={"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-
                        "bribri-spanish":"bzd","chatino-spanish":"ctp","guarani-spanish":"gn","nahuatl-spanish":"nah",
                        "otomi-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
 
-dev_split_ratio = 0.1
+dev_split_ratio = 0.15
 random.seed(42)
 
 config = {
     "model_dir": "models/model-test",
+    "data_dir": "data",
     "finetuning_parameters": {
         "base_model": "facebook/nllb-200-distilled-600M",
         "finetune": True,
@@ -23,6 +24,9 @@ config = {
         "freeze_decoder": False,
         "batch_size": 32,
         "num_steps": 10000,
+        "report_every": 500, 
+        "validate_every": 500,
+        "patience": 5,
         "add_new_lang_codes": True,
         "add_new_tokens": True,
         "new_lang_size": 2**7,
