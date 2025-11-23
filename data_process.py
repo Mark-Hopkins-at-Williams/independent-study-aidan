@@ -3,10 +3,12 @@ import os
 from pathlib import Path
 import random
 
+from scripts.batch_sort_2 import organize_data
+
 source_folder = "data"
 
 #language pairs from AmericasNLP 2025
-language_pairs = ["ashaninka-spanish","awajun-spanish","aymara-spanish","bribri-spanish","chatino-spanish","guarani-spanish","nahuatl-spanish","otomi-spanish","quechua-spanish","raramuri-spanish","shipibo_konibo-spanish", "wayuu-spanish","wixarika-spanish"]
+language_pairs = ["ashaninka-spanish","aymara-spanish","bribri-spanish","chatino-spanish","guarani-spanish","nahuatl-spanish","otomi-spanish","quechua-spanish","raramuri-spanish","shipibo_konibo-spanish", "wixarika-spanish"]
 extension_dictionary ={"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-spanish":"aym",
                        "bribri-spanish":"bzd","chatino-spanish":"ctp","guarani-spanish":"gn","nahuatl-spanish":"nah",
                        "otomi-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
@@ -15,22 +17,22 @@ dev_split_ratio = 0.15
 random.seed(42)
 
 config = {
-    "model_dir": "models/model-test",
+    "model_dir": "models/baseline",
     "data_dir": "data",
     "finetuning_parameters": {
         "base_model": "facebook/nllb-200-distilled-600M",
         "finetune": True,
         "freeze_encoder": False,
         "freeze_decoder": False,
-        "batch_size": 32,
+        "batch_size": 64,
         "num_steps": 10000,
         "report_every": 500, 
         "validate_every": 500,
         "patience": 5,
         "add_new_lang_codes": True,
-        "add_new_tokens": True,
+        "add_new_tokens": False,
         "new_lang_size": 2**7,
-        "IBT": True,
+        "IBT": False,
         "IBT_iterations": 1,
         "IBT_training_steps": 1000,
         "IBT_Langs": [],
@@ -39,7 +41,7 @@ config = {
     "corpora": {},
     "bitexts": []
 }
-
+batch_size = config["finetuning_parameters"]["batch_size"]
 for label_pair in language_pairs:
     lang_folder = f"{source_folder}/{label_pair}"
     #write out the training
@@ -78,14 +80,14 @@ for label_pair in language_pairs:
     config["corpora"][corpus_key] = {
         src: {
             "lang_code": f"{extension_dictionary[label_pair]}_Latn",
-            "train":[f"{lang_folder}/processedTrain.{extension_dictionary[label_pair]}"],
+            "train":[f"{lang_folder}/optimized_train_{batch_size}.{extension_dictionary[label_pair]}"],
             "dev": [f"{lang_folder}/trainDev.{extension_dictionary[label_pair]}"],
             "test": [f"{lang_folder}/dev.{extension_dictionary[label_pair]}"],
             "permutation": 0
         },
         "es": {
             "lang_code": "es_Latn",
-            "train":[f"{lang_folder}/processedTrain.es"],
+            "train":[f"{lang_folder}/optimized_train_{batch_size}.es"],
             "dev": [f"{lang_folder}/trainDev.es"],
             "test": [f"{lang_folder}/dev.es"],
             "permutation": 0
@@ -108,3 +110,5 @@ for label_pair in language_pairs:
 
 with open("config.json", "w", encoding="utf-8") as f:
     json.dump(config, f, ensure_ascii=False, indent=4)
+
+organize_data(batch_size,source_folder)
