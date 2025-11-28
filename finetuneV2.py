@@ -335,8 +335,8 @@ def main():
         ibt_iterations = params['IBT_iterations'] if 'IBT_iterations' else 1
         backTranslateLangs = params['IBT_Langs'] if len(params['IBT_Langs']) > 0 else all_langs
         mono_paths = get_spanish_paths_for_lang_codes(config, all_langs)
-        lang_codes = {key: (value + "_Latn") for key, value in params["lang_extensions"].items()}
-        ibt = iterativeBackTranslation(mono_paths, data_dir, lang_codes)
+        ibt_lang_codes = {key: (value + "_Latn") for key, value in params["lang_extensions"].items()}
+        ibt = iterativeBackTranslation(mono_paths, data_dir, ibt_lang_codes)
         
         #generate empty syntheitc files
         for lang in backTranslateLangs:

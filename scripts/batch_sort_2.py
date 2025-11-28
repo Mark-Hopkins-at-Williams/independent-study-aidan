@@ -48,8 +48,8 @@ def batch_sort(batch_size=64, cur_directory="", language=""):
                 file.write(line_list_en[reshuffled_batches[i][j]])
 
     extension_dictionary = {"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-spanish":"aym",
-                       "bribri-spanish":"bzd","chatino-spanish":"ctp","guarani-spanish":"gn","nahuatl-spanish":"nah",
-                       "otomi-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
+                       "bribri-spanish":"bzd","chatino-spanish":"czn","guarani-spanish":"gn","nahuatl-spanish":"nah",
+                       "hñähñu-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
     lang_code = extension_dictionary[language]
     line_list = []
     with open(f"{cur_directory}/processedTrain.{lang_code}", "r") as f:

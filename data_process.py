@@ -8,10 +8,10 @@ from scripts.batch_sort_2 import organize_data
 source_folder = "data"
 
 #language pairs from AmericasNLP 2025
-language_pairs = ["ashaninka-spanish","aymara-spanish","bribri-spanish","chatino-spanish","guarani-spanish","nahuatl-spanish","otomi-spanish","quechua-spanish","raramuri-spanish","shipibo_konibo-spanish", "wixarika-spanish"]
+language_pairs = ["ashaninka-spanish","aymara-spanish","bribri-spanish","chatino-spanish","guarani-spanish","nahuatl-spanish","hñähñu-spanish","quechua-spanish","raramuri-spanish","shipibo_konibo-spanish", "wixarika-spanish"]
 extension_dictionary ={"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-spanish":"aym",
-                       "bribri-spanish":"bzd","chatino-spanish":"ctp","guarani-spanish":"gn","nahuatl-spanish":"nah",
-                       "otomi-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
+                       "bribri-spanish":"bzd","chatino-spanish":"czn","guarani-spanish":"gn","nahuatl-spanish":"nah",
+                       "hñähñu-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
 
 dev_split_ratio = 0.15
 random.seed(42)
@@ -79,6 +79,7 @@ for label_pair in language_pairs:
     corpus_key = f"{label_pair}"
     config["corpora"][corpus_key] = {
         src: {
+            "mono_data": [],
             "lang_code": f"{extension_dictionary[label_pair]}_Latn",
             "train":[f"{lang_folder}/optimized_train_{batch_size}.{extension_dictionary[label_pair]}"],
             "dev": [f"{lang_folder}/trainDev.{extension_dictionary[label_pair]}"],
