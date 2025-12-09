@@ -8,10 +8,25 @@ from scripts.batch_sort_2 import organize_data
 source_folder = "data"
 
 #language pairs from AmericasNLP 2025
-language_pairs = ["ashaninka-spanish","aymara-spanish","bribri-spanish","chatino-spanish","guarani-spanish","nahuatl-spanish","hñähñu-spanish","quechua-spanish","raramuri-spanish","shipibo_konibo-spanish", "wixarika-spanish"]
-extension_dictionary ={"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-spanish":"aym",
-                       "bribri-spanish":"bzd","chatino-spanish":"czn","guarani-spanish":"gn","nahuatl-spanish":"nah",
-                       "hñähñu-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
+language_pairs = [
+    "aymara-spanish",
+    "wixarika-spanish"
+]
+extension_dictionary ={
+    "ashaninka-spanish": "cni",
+    "awajun-spanish": "agr",
+    "aymara-spanish": "aym",
+    "bribri-spanish": "bzd",
+    "chatino-spanish": "ctp",
+    "guarani-spanish": "gn",
+    "nahuatl-spanish": "nah",
+    "otomi-spanish": "oto",
+    "quechua-spanish": "quy",
+    "raramuri-spanish": "tar",
+    "shipibo_konibo-spanish": "shp",
+    "wayuu-spanish": "guc",
+    "wixarika-spanish": "hch"
+}
 
 dev_split_ratio = 0.15
 random.seed(42)
@@ -44,9 +59,10 @@ config = {
 batch_size = config["finetuning_parameters"]["batch_size"]
 for label_pair in language_pairs:
     lang_folder = f"{source_folder}/{label_pair}"
+    
     #write out the training
-    with open(f"{lang_folder}/train.{extension_dictionary[label_pair]}", "r", encoding="utf-8") as f_indigenous, \
-        open(f"{lang_folder}/train.es", "r") as f_es:
+    with open(f"{lang_folder}/helsinki_{extension_dictionary[label_pair]}_filtered_processed.{extension_dictionary[label_pair]}", "r", encoding="utf-8") as f_indigenous, \
+        open(f"{lang_folder}/helsinki_{extension_dictionary[label_pair]}_filtered_processed.es", "r") as f_es:
             src_lines = f_indigenous.readlines()
             tgt_lines = f_es.readlines()
     
@@ -62,14 +78,14 @@ for label_pair in language_pairs:
     train_data = paired_data[:train_size]
     dev_data = paired_data[train_size:]
 
-    with open(f"{lang_folder}/processedTrain.{extension_dictionary[label_pair]}", "w", encoding="utf-8") as f_indigenous, \
-        open(f"{lang_folder}/processedTrain.es", "w") as f_es:
+    with open(f"{lang_folder}/train_split_helsinki.{extension_dictionary[label_pair]}", "w", encoding="utf-8") as f_indigenous, \
+        open(f"{lang_folder}/train_split_helsinki.es", "w") as f_es:
             for src_line, tgt_line in train_data:
                   f_indigenous.write(src_line)
                   f_es.write(tgt_line)
     
-    with open(f"{lang_folder}/trainDev.{extension_dictionary[label_pair]}", "w", encoding="utf-8") as f_indigenous, \
-        open(f"{lang_folder}/trainDev.es", "w") as f_es:
+    with open(f"{lang_folder}/dev_split_helsinki.{extension_dictionary[label_pair]}", "w", encoding="utf-8") as f_indigenous, \
+        open(f"{lang_folder}/dev_split_helsinki.es", "w") as f_es:
             for src_line, tgt_line in dev_data:
                   f_indigenous.write(src_line)
                   f_es.write(tgt_line)
@@ -81,15 +97,15 @@ for label_pair in language_pairs:
         src: {
             "mono_data": [],
             "lang_code": f"{extension_dictionary[label_pair]}_Latn",
-            "train":[f"{lang_folder}/optimized_train_{batch_size}.{extension_dictionary[label_pair]}"],
-            "dev": [f"{lang_folder}/trainDev.{extension_dictionary[label_pair]}"],
+            "train":[f"{lang_folder}/train_split_helsinki_processed.{extension_dictionary[label_pair]}"],
+            "dev": [f"{lang_folder}/dev_split_helsinki_processed.{extension_dictionary[label_pair]}"],
             "test": [f"{lang_folder}/dev.{extension_dictionary[label_pair]}"],
             "permutation": 0
         },
         "es": {
             "lang_code": "es_Latn",
-            "train":[f"{lang_folder}/optimized_train_{batch_size}.es"],
-            "dev": [f"{lang_folder}/trainDev.es"],
+            "train":[f"{lang_folder}/train_split_helsinki_processed.es"],
+            "dev": [f"{lang_folder}/dev_split_helsinki_processed.es"],
             "test": [f"{lang_folder}/dev.es"],
             "permutation": 0
         }
@@ -109,7 +125,5 @@ for label_pair in language_pairs:
         })
     
 
-with open("config.json", "w", encoding="utf-8") as f:
+with open("helsinki_config.json", "w", encoding="utf-8") as f:
     json.dump(config, f, ensure_ascii=False, indent=4)
-
-organize_data(batch_size,source_folder)

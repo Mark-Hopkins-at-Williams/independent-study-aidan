@@ -2,18 +2,15 @@ from pathlib import Path
 from transformers import AutoTokenizer 
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from permutations import CreateRandomPermutationWithFixedPoints
-
+from permutations import create_random_permutation_with_fixed_points
 model_name = "facebook/nllb-200-distilled-600M"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 
-def batch_sort(batch_size=128):
-    OUT_DIR = Path("./optimized_data")
-    OUT_DIR.mkdir(exist_ok=True)
+def batch_sort(batch_size=64):
     num_lines = 0
     line_list_en = []
-    with open("europarlData/train.en", "r", encoding="utf-8") as f:
+    with open("../data/aymara-spanish/train_split_helsinki.es", "r", encoding="utf-8") as f:
         line_list_en = f.readlines()
         for line in line_list_en:
             num_lines += 1
@@ -21,7 +18,7 @@ def batch_sort(batch_size=128):
     number_of_batches = num_lines//batch_size
     base_model = "facebook/nllb-200-distilled-600M"
     tokenizer = AutoTokenizer.from_pretrained(base_model)
-    tokenizer.src_lang = "eng_Latn"
+    tokenizer.src_lang = "es_Latn"
     line_length_dict = {} #Key: line number; Value: line length
     i = 0
     for line in line_list_en:
@@ -38,27 +35,21 @@ def batch_sort(batch_size=128):
         for j in range(batch_size):
             this_batch.append(order_of_lines[i*batch_size+j])
         batch_list.append(this_batch)
-    pmap_batches = CreateRandomPermutationWithFixedPoints(number_of_batches,[]) 
+    pmap_batches = create_random_permutation_with_fixed_points(number_of_batches,[]) 
     reshuffled_batches = []
     for k in range(number_of_batches):
         reshuffled_batches.append(batch_list[pmap_batches(k)])
-    with open(OUT_DIR / f"optimized_train_{batch_size}.en","w") as file:
+    with open(f"../data/aymara-spanish/train_split_helsinki_processed.es","w") as file:
         for i in range(number_of_batches):
             for j in range(batch_size):
                 file.write(line_list_en[reshuffled_batches[i][j]])
 
-    LANGS = [
-    "bg", "cs", "da", "de", "el",
-    "es", "et", "fi", "fr", "hu",
-    "it", "lt", "lv", "nl", "pl",
-    "pt", "ro", "sk", "sl", "sv",
-    ]
-    for lang_code in LANGS:
-        line_list = []
-        with open(f"europarlData/train.{lang_code}", "r") as f:
-            line_list = f.readlines()
-        
-        with open(OUT_DIR / f"optimized_train_{batch_size}.{lang_code}","w") as file:
-            for i in range(number_of_batches):
-                for j in range(batch_size):
-                    file.write(line_list[reshuffled_batches[i][j]])
+    tgt_code = "aym_Latn"
+    line_list = []
+    with open(f"../data/aymara-spanish/train_split_helsinki.{tgt_code}", "r") as f:
+        line_list = f.readlines()
+    
+    with open(f"../data/aymara-spanish/train_split_helsinki_processed.{tgt_code}","w") as file:
+        for i in range(number_of_batches):
+            for j in range(batch_size):
+                file.write(line_list[reshuffled_batches[i][j]])

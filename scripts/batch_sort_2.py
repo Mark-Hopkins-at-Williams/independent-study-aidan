@@ -13,6 +13,7 @@ def batch_sort(batch_size=64, cur_directory="", language=""):
     print(f"Directory: {cur_directory}")
     num_lines = 0
     line_list_en = []
+    
     with open(f"{cur_directory}/processedTrain.es", "r", encoding="utf-8") as f:
         line_list_en = f.readlines()
         for line in line_list_en:
@@ -42,14 +43,27 @@ def batch_sort(batch_size=64, cur_directory="", language=""):
     reshuffled_batches = []
     for k in range(number_of_batches):
         reshuffled_batches.append(batch_list[pmap_batches(k)])
+    
     with open(f"{cur_directory}/optimized_train_{batch_size}.es","w") as file:
         for i in range(number_of_batches):
             for j in range(batch_size):
                 file.write(line_list_en[reshuffled_batches[i][j]])
 
-    extension_dictionary = {"ashaninka-spanish":"cni","awajun-spanish":"agr","aymara-spanish":"aym",
-                       "bribri-spanish":"bzd","chatino-spanish":"czn","guarani-spanish":"gn","nahuatl-spanish":"nah",
-                       "hñähñu-spanish":"oto","quechua-spanish":"quy","raramuri-spanish":"tar","shipibo_konibo-spanish":"shp", "wayuu-spanish":"guc","wixarika-spanish":"hch"}
+    extension_dictionary = {
+    "ashaninka": "cni",
+    "awajun": "agr",
+    "aymara": "aym",
+    "bribri": "bzd",
+    "chatino": "ctp",
+    "guarani": "gn",
+    "nahuatl": "nah",
+    "otomi": "oto",
+    "quechua_south_bolivian": "quy",  # what your files use
+    "raramuri": "tar",
+    "shipibo_konibo": "shp",
+    "wayuu": "guc",
+    "wixarika": "hch"}
+    
     lang_code = extension_dictionary[language]
     line_list = []
     with open(f"{cur_directory}/processedTrain.{lang_code}", "r") as f:
