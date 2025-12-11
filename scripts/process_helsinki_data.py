@@ -1,12 +1,11 @@
+#this file will read in the data pull out the training and dev sets and write it out in a json
 import json
 import os
 from pathlib import Path
 import random
 
-from scripts.batch_sort_2 import organize_data
-
-source_folder = "data"
-
+source_folder = "../data"
+out_folder = "../configs"
 #language pairs from AmericasNLP 2025
 language_pairs = [
     "aymara-spanish",
@@ -103,7 +102,7 @@ for label_pair in language_pairs:
             "permutation": 0
         },
         "es": {
-            "lang_code": "es_Latn",
+            "lang_code": "spa_Latn",
             "train":[f"{lang_folder}/train_split_helsinki_processed.es"],
             "dev": [f"{lang_folder}/dev_split_helsinki_processed.es"],
             "test": [f"{lang_folder}/dev.es"],
@@ -125,5 +124,5 @@ for label_pair in language_pairs:
         })
     
 
-with open("helsinki_config.json", "w", encoding="utf-8") as f:
+with open(f"{out_folder}/test.json", "w", encoding="utf-8") as f:
     json.dump(config, f, ensure_ascii=False, indent=4)

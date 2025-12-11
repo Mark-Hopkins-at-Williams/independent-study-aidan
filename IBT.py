@@ -1,13 +1,12 @@
-import json
-import random
 from tqdm import tqdm
-from typing import Dict
+from typing import Dict, List
 
 class iterativeBackTranslation():
-    def __init__(self, lang_to_path: Dict[str, str], model_dir: str, lang_codes: Dict[str, str]) -> None:
+    def __init__(self, lang_to_path: Dict[str, List[str]], model_dir: str, lang_codes: Dict[str, str], pivot_lang = "spa_Latn") -> None:
         self.langs_to_path = lang_to_path
         self.data_dir = model_dir
         self.lang_codes = lang_codes
+        self.pivot_lang = pivot_lang
     def translate(
         self, 
         src_tokenized,
@@ -33,42 +32,22 @@ class iterativeBackTranslation():
             result.apply_(permutation.get_inverse())
         return tokenizer.batch_decode(result)
 
-    def backTranslate(self, in_model, target_langauges, tokenizer):
-        ret = {}
-        for lang in target_langauges:
-            ex, _ = self.lang_codes[lang].split("_")
-            with open(f"{self.data_dir}/{lang}/mono.{ex}", "r", encoding="utf-8") as mono_f:
-                # keep non-empty lines, strip trailing newlines
-                translation_lines = [l.rstrip("\n") for l in mono_f if l.strip()]
+    def backTranslate(self, in_model, target_languages, tokenizer):
+        for lang in target_languages:
+            mono_files = self.langs_to_path.get(lang, [])
+
+            translation_lines = []
+            for mono_file in mono_files:
+                with open(mono_file, "r", encoding="utf-8") as f:
+                    lines = [l.rstrip("\n") for l in f if l.strip()]
+                    translation_lines.extend(lines)
 
             with open(f"{self.data_dir}/{lang}/trainBackTrans.es","w") as es, \
                 open(f"{self.data_dir}/{lang}/trainBackTrans.tsv","w") as dialect:
                     for line in tqdm(translation_lines,desc=f"Translating: {lang}", total=len(translation_lines)):
                         inputs = tokenizer([line])
-                        inputs = inputs.to("cuda")
-                        translated_tokens = self.translate(src_tokenized=inputs, model=in_model,tokenizer=tokenizer, tgt_lang="es_Latn")
+                        inputs = inputs.to(in_model.device)
+                        translated_tokens = self.translate(src_tokenized=inputs, model=in_model,tokenizer=tokenizer, tgt_lang=self.pivot_lang)
                         es.write(translated_tokens[0]+ "\n")
                         dialect.write(line + "\n")
-
-    def getMonoSample(self, target_language):
-        mono = []
-        print(self.langs_to_path)
-        print(target_language)
-        for lang, paths in self.langs_to_path.items():
-            if lang != target_language:
-                for file in paths:
-                    try:
-                        with open(file, 'r', encoding='utf-8') as f:
-                            sentences = [line.strip() for line in f if line.strip()]
-                            mono.extend(sentences)
-                    except FileNotFoundError:
-                        print(f"Warning: File not found: {file}")
-                    except Exception as e:
-                        print(f"Error reading {file}: {e}")
-            else:
-                print("here")
-                for file in paths:
-                    with open(file, 'r', encoding='utf-8') as f:
-                            translate_len = sum(1 for line in f if line.strip())
-        return translate_len, mono
                             
