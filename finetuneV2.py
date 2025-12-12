@@ -301,7 +301,7 @@ def main():
             Path(lang_path).touch()
             lang_in_corpus, _ = lang.split("-")
             config["corpora"][lang][lang_in_corpus]["train"].append(lang_path)
-            config["corpora"][lang]["es"]["train"].append(es_path)
+            config["corpora"][lang]["spanish"]["train"].append(es_path)
         
         #backtranslate
         for i in range(ibt_iterations):

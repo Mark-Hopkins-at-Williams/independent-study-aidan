@@ -8,19 +8,7 @@ out_folder = "../configs"
 
 #language pairs from AmericasNLP 2025
 language_pairs = [
-    "ashaninka-spanish",
-    "awajun-spanish",
-    "aymara-spanish",
-    "bribri-spanish",
-    "chatino-spanish",
-    "guarani-spanish",
-    "nahuatl-spanish",
-    "otomi-spanish",
-    "quechua-spanish",
-    "raramuri-spanish",
-    "shipibo_konibo-spanish",
-    "wayuu-spanish",
-    "wixarika-spanish"
+    "shipibo_konibo-spanish"
 ]
 extension_dictionary ={
     "ashaninka-spanish": "cni",
@@ -42,7 +30,7 @@ dev_split_ratio = 0.15
 random.seed(42)
 
 config = {
-    "model_dir": "models/baseline",
+    "model_dir": "models/shp_ibt",
     "data_dir": "data",
     "finetuning_parameters": {
         "base_model": "facebook/nllb-200-distilled-600M",
@@ -60,7 +48,7 @@ config = {
         "IBT": False,
         "IBT_iterations": 1,
         "IBT_training_steps": 1000,
-        "IBT_Langs": [],
+        "IBT_Langs": ["shipibo_konibo-spanish"],
         "lang_extensions": extension_dictionary
     },
     "corpora": {},
@@ -71,7 +59,7 @@ for label_pair in language_pairs:
     lang_folder = f"{source_folder}/{label_pair}"
     
     #write out the training
-    with open(f"{lang_folder}/train_filtered.{extension_dictionary[label_pair]}", "r", encoding="utf-8") as f_indigenous, \
+    with open(f"{lang_folder}/train_filtered_processed.{extension_dictionary[label_pair]}", "r", encoding="utf-8") as f_indigenous, \
         open(f"{lang_folder}/train_filtered.es", "r") as f_es:
             src_lines = f_indigenous.readlines()
             tgt_lines = f_es.readlines()
@@ -100,23 +88,24 @@ for label_pair in language_pairs:
                   f_indigenous.write(src_line)
                   f_es.write(tgt_line)
     
+    _, tgt_folder = lang_folder.split('/')
     src, _ = label_pair.split("-")
-    tgt = "es"
+    tgt = "spanish"
     corpus_key = f"{label_pair}"
     config["corpora"][corpus_key] = {
         src: {
             "mono_data": [],
             "lang_code": f"{extension_dictionary[label_pair]}_Latn",
-            "train":[f"{lang_folder}/train_split_filtered_processed.{extension_dictionary[label_pair]}"],
-            "dev": [f"{lang_folder}/dev_split_filtered_processed.{extension_dictionary[label_pair]}"],
-            "test": [f"{lang_folder}/dev.{extension_dictionary[label_pair]}"],
+            "train":[f"{tgt_folder}/train_split_filtered_processed.{extension_dictionary[label_pair]}"],
+            "dev": [f"{tgt_folder}/dev_split_filtered_processed.{extension_dictionary[label_pair]}"],
+            "test": [f"{tgt_folder}/dev.{extension_dictionary[label_pair]}"],
             "permutation": 0
         },
         "spanish": {
             "lang_code": "spa_Latn",
-            "train":[f"{lang_folder}/train_split_filtered_processed.es"],
-            "dev": [f"{lang_folder}/dev_split_filtered_processed.es"],
-            "test": [f"{lang_folder}/dev.es"],
+            "train":[f"{tgt_folder}/train_split_filtered_processed.es"],
+            "dev": [f"{tgt_folder}/dev_split_filtered_processed.es"],
+            "test": [f"{tgt_folder}/dev.es"],
             "permutation": 0
         }
     }
@@ -135,5 +124,5 @@ for label_pair in language_pairs:
         })
     
 
-with open(f"{out_folder}/config.json", "w", encoding="utf-8") as f:
+with open(f"{out_folder}/spa-shp.json", "w", encoding="utf-8") as f:
     json.dump(config, f, ensure_ascii=False, indent=4)
