@@ -1,0 +1,498 @@
+{
+    "model_dir": "models/baseline-xx-spa",
+    "data_dir": "data",
+    "finetuning_parameters": {
+        "base_model": "facebook/nllb-200-distilled-1.3B",
+        "finetune": true,
+        "freeze_encoder": false,
+        "freeze_decoder": false,
+        "batch_size": 16,
+        "num_steps": 10000,
+        "report_every": 500,
+        "validate_every": 500,
+        "patience": 5,
+        "add_new_lang_codes": true,
+        "add_new_tokens": false,
+        "new_lang_size": 128,
+        "IBT": false,
+        "IBT_iterations": 1,
+        "IBT_training_steps": 1000,
+        "IBT_Langs": [],
+        "lang_extensions": {
+            "ashaninka-spanish": "cni",
+            "awajun-spanish": "agr",
+            "aymara-spanish": "aym",
+            "bribri-spanish": "bzd",
+            "chatino-spanish": "ctp",
+            "guarani-spanish": "gn",
+            "nahuatl-spanish": "nah",
+            "otomi-spanish": "oto",
+            "quechua-spanish": "quy",
+            "raramuri-spanish": "tar",
+            "shipibo_konibo-spanish": "shp",
+            "wayuu-spanish": "guc",
+            "wixarika-spanish": "hch"
+        }
+    },
+    "corpora": {
+        "ashaninka-spanish": {
+            "ashaninka": {
+                "mono_data": [],
+                "lang_code": "cni_Latn",
+                "train": [
+                    "data/ashaninka-spanish/train_split_filtered_processed.cni"
+
+                ],
+                "dev": [
+                    "data/ashaninka-spanish/dev_split_filtered_processed.cni"
+                ],
+                "test": [
+                    "data/ashaninka-spanish/dev.cni"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/ashaninka-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/ashaninka-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/ashaninka-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "awajun-spanish": {
+            "awajun": {
+                "mono_data": [],
+                "lang_code": "agr_Latn",
+                "train": [
+                    "data/awajun-spanish/train_split_filtered_processed.agr"
+                ],
+                "dev": [
+                    "data/awajun-spanish/dev_split_filtered_processed.agr"
+                ],
+                "test": [
+                    "data/awajun-spanish/dev.agr"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/awajun-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/awajun-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/awajun-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "aymara-spanish": {
+            "aymara": {
+                "mono_data": [],
+                "lang_code": "aym_Latn",
+                "train": [
+                    "data/aymara-spanish/train_split_filtered_processed.aym"
+                ],
+                "dev": [
+                    "data/aymara-spanish/dev_split_filtered_processed.aym"
+                ],
+                "test": [
+                    "data/aymara-spanish/dev.aym"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/aymara-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/aymara-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/aymara-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "bribri-spanish": {
+            "bribri": {
+                "mono_data": [],
+                "lang_code": "bzd_Latn",
+                "train": [
+                    "data/bribri-spanish/train_split_filtered_processed.bzd"
+                ],
+                "dev": [
+                    "data/bribri-spanish/dev_split_filtered_processed.bzd"
+                ],
+                "test": [
+                    "data/bribri-spanish/dev.bzd"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/bribri-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/bribri-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/bribri-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "chatino-spanish": {
+            "chatino": {
+                "mono_data": [],
+                "lang_code": "ctp_Latn",
+                "train": [
+                    "data/chatino-spanish/train_split_filtered_processed.ctp"
+                ],
+                "dev": [
+                    "data/chatino-spanish/dev_split_filtered_processed.ctp"
+                ],
+                "test": [
+                    "data/chatino-spanish/dev.ctp"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/chatino-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/chatino-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/chatino-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "guarani-spanish": {
+            "guarani": {
+                "mono_data": [],
+                "lang_code": "gn_Latn",
+                "train": [
+                    "data/guarani-spanish/train_split_filtered_processed.gn"
+                ],
+                "dev": [
+                    "data/guarani-spanish/dev_split_filtered_processed.gn"
+                ],
+                "test": [
+                    "data/guarani-spanish/dev.gn"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/guarani-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/guarani-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/guarani-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "nahuatl-spanish": {
+            "nahuatl": {
+                "mono_data": [],
+                "lang_code": "nah_Latn",
+                "train": [
+                    "data/nahuatl-spanish/train_split_filtered_processed.nah"
+                ],
+                "dev": [
+                    "data/nahuatl-spanish/dev_split_filtered_processed.nah"
+                ],
+                "test": [
+                    "data/nahuatl-spanish/dev.nah"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/nahuatl-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/nahuatl-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/nahuatl-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "otomi-spanish": {
+            "otomi": {
+                "mono_data": [],
+                "lang_code": "oto_Latn",
+                "train": [
+                    "data/otomi-spanish/train_split_filtered_processed.oto"
+                ],
+                "dev": [
+                    "data/otomi-spanish/dev_split_filtered_processed.oto"
+                ],
+                "test": [
+                    "data/otomi-spanish/dev.oto"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/otomi-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/otomi-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/otomi-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "quechua-spanish": {
+            "quechua": {
+                "mono_data": [],
+                "lang_code": "quy_Latn",
+                "train": [
+                    "data/quechua-spanish/train_split_filtered_processed.quy"
+                ],
+                "dev": [
+                    "data/quechua-spanish/dev_split_filtered_processed.quy"
+                ],
+                "test": [
+                    "data/quechua-spanish/dev.quy"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/quechua-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/quechua-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/quechua-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "raramuri-spanish": {
+            "raramuri": {
+                "mono_data": [],
+                "lang_code": "tar_Latn",
+                "train": [
+                    "data/raramuri-spanish/train_split_filtered_processed.tar"
+                ],
+                "dev": [
+                    "data/raramuri-spanish/dev_split_filtered_processed.tar"
+
+                ],
+                "test": [
+                    "data/raramuri-spanish/dev.tar"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/raramuri-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/raramuri-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/raramuri-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "shipibo_konibo-spanish": {
+            "shipibo_konibo": {
+                "mono_data": [],
+                "lang_code": "shp_Latn",
+                "train": [
+                    "data/shipibo_konibo-spanish/train_split_filtered_processed.shp"
+                ],
+                "dev": [
+                    "data/shipibo_konibo-spanish/dev_split_filtered_processed.shp"
+                ],
+                "test": [
+                    "data/shipibo_konibo-spanish/dev.shp"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/shipibo_konibo-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/shipibo_konibo-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/shipibo_konibo-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "wayuu-spanish": {
+            "wayuu": {
+                "mono_data": [],
+                "lang_code": "guc_Latn",
+                "train": [
+                    "data/wayuu-spanish/train_split_filtered_processed.guc"
+                ],
+                "dev": [
+                    "data/wayuu-spanish/dev_split_filtered_processed.guc"
+                ],
+                "test": [
+                    "data/wayuu-spanish/dev.guc"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/wayuu-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/wayuu-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/wayuu-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "wixarika-spanish": {
+            "wixarika": {
+                "mono_data": [],
+                "lang_code": "hch_Latn",
+                "train": [
+                    "data/wixarika-spanish/train_split_filtered_processed.hch"
+                ],
+                "dev": [
+                    "data/wixarika-spanish/dev_split_filtered_processed.hch"
+                ],
+                "test": [
+                    "data/wixarika-spanish/dev.hch"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/wixarika-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/wixarika-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/wixarika-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        }
+    },
+    "bitexts": [
+        {
+            "corpus": "ashaninka-spanish",
+            "src": "ashaninka",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "awajun-spanish",
+            "src": "awajun",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "aymara-spanish",
+            "src": "aymara",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "bribri-spanish",
+            "src": "bribri",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "chatino-spanish",
+            "src": "chatino",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "guarani-spanish",
+            "src": "guarani",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "nahuatl-spanish",
+            "src": "nahuatl",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "otomi-spanish",
+            "src": "otomi",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "quechua-spanish",
+            "src": "quechua",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "raramuri-spanish",
+            "src": "raramuri",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "shipibo_konibo-spanish",
+            "src": "shipibo_konibo",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "wayuu-spanish",
+            "src": "wayuu",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "wixarika-spanish",
+            "src": "wixarika",
+            "tgt": "es",
+            "train_lines": null
+        }
+    ]
+}

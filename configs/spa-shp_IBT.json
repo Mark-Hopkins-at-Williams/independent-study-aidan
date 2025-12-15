@@ -1,0 +1,79 @@
+{
+    "model_dir": "models/shp_ibt",
+    "data_dir": "data",
+    "finetuning_parameters": {
+        "base_model": "facebook/nllb-200-distilled-600M",
+        "finetune": true,
+        "freeze_encoder": false,
+        "freeze_decoder": false,
+        "batch_size": 64,
+        "num_steps": 100,
+        "report_every": 500,
+        "validate_every": 500,
+        "patience": 5,
+        "add_new_lang_codes": true,
+        "add_new_tokens": false,
+        "new_lang_size": 128,
+        "IBT": true,
+        "IBT_iterations": 2,
+        "IBT_training_steps": 100,
+        "IBT_Langs": [
+            "shipibo_konibo-spanish"
+        ],
+        "lang_extensions": {
+            "ashaninka-spanish": "cni",
+            "awajun-spanish": "agr",
+            "aymara-spanish": "aym",
+            "bribri-spanish": "bzd",
+            "chatino-spanish": "ctp",
+            "guarani-spanish": "gn",
+            "nahuatl-spanish": "nah",
+            "otomi-spanish": "oto",
+            "quechua-spanish": "quy",
+            "raramuri-spanish": "tar",
+            "shipibo_konibo-spanish": "shp",
+            "wayuu-spanish": "guc",
+            "wixarika-spanish": "hch"
+        }
+    },
+    "corpora": {
+        "shipibo_konibo-spanish": {
+            "shipibo_konibo": {
+                "mono_data": ["data/shipibo_konibo-spanish/mono/train.txt"],
+                "lang_code": "shp_Latn",
+                "train": [
+                    "data/shipibo_konibo-spanish/train_split_filtered_processed.shp"
+                ],
+                "dev": [
+                    "data/shipibo_konibo-spanish/dev_split_filtered_processed.shp"
+                ],
+                "test": [
+                    "data/shipibo_konibo-spanish/dev.shp"
+                ],
+                "permutation": 0
+            },
+            "spanish": {
+                "lang_code": "spa_Latn",
+                "train": [
+                    "data/shipibo_konibo-spanish/train_split_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/shipibo_konibo-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/shipibo_konibo-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        }
+    },
+    "bitexts": [
+
+        {
+            "corpus": "shipibo_konibo-spanish",
+            "src": "spanish",
+            "tgt": "shipibo_konibo",
+            "train_lines": null
+        }
+    ]
+}

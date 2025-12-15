@@ -1,0 +1,115 @@
+{
+    "model_dir": "models/aym-wix-spa",
+    "data_dir": "data",
+    "finetuning_parameters": {
+        "base_model": "facebook/nllb-200-distilled-1.3B",
+        "finetune": true,
+        "freeze_encoder": false,
+        "freeze_decoder": false,
+        "batch_size": 16,
+        "num_steps": 10000,
+        "report_every": 500,
+        "validate_every": 500,
+        "patience": 5,
+        "add_new_lang_codes": true,
+        "add_new_tokens": false,
+        "new_lang_size": 128,
+        "IBT": false,
+        "IBT_iterations": 1,
+        "IBT_training_steps": 1000,
+        "IBT_Langs": [],
+        "lang_extensions": {
+            "ashaninka-spanish": "cni",
+            "awajun-spanish": "agr",
+            "aymara-spanish": "aym",
+            "bribri-spanish": "bzd",
+            "chatino-spanish": "ctp",
+            "guarani-spanish": "gn",
+            "nahuatl-spanish": "nah",
+            "otomi-spanish": "oto",
+            "quechua-spanish": "quy",
+            "raramuri-spanish": "tar",
+            "shipibo_konibo-spanish": "shp",
+            "wayuu-spanish": "guc",
+            "wixarika-spanish": "hch"
+        }
+    },
+    "corpora": {
+        "aymara-spanish": {
+            "aymara": {
+                "mono_data": [],
+                "lang_code": "aym_Latn",
+                "train": [
+                    "data/aymara-spanish/train_split_filtered_processed.aym",
+                    "data/aymara-spanish/helsinki_aym_filtered_processed.aym"
+                ],
+                "dev": [
+                    "data/aymara-spanish/dev_split_filtered_processed.aym"
+                ],
+                "test": [
+                    "data/aymara-spanish/dev.aym"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/aymara-spanish/train_split_filtered_processed.es",
+                    "data/aymara-spanish/helsinki_aym_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/aymara-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/aymara-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        },
+        "wixarika-spanish": {
+            "wixarika": {
+                "mono_data": [],
+                "lang_code": "hch_Latn",
+                "train": [
+                    "data/wixarika-spanish/train_split_filtered_processed.hch",
+                    "data/wixarika-spanish/helsinki_hch_filtered_processed.hch"
+                ],
+                "dev": [
+                    "data/wixarika-spanish/dev_split_filtered_processed.hch"
+                ],
+                "test": [
+                    "data/wixarika-spanish/dev.hch"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/wixarika-spanish/train_split_filtered_processed.es",
+                    "data/wixarika-spanish/helsinki_hch_filtered_processed.es"
+                ],
+                "dev": [
+                    "data/wixarika-spanish/dev_split_filtered_processed.es"
+                ],
+                "test": [
+                    "data/wixarika-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        }
+    },
+    "bitexts": [
+        {
+            "corpus": "aymara-spanish",
+            "src": "aymara",
+            "tgt": "es",
+            "train_lines": null
+        },
+        {
+            "corpus": "wixarika-spanish",
+            "src": "wixarika",
+            "tgt": "es",
+            "train_lines": null
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+{
+    "model_dir": "models/helsinki-wix-spa",
+    "data_dir": "data",
+    "finetuning_parameters": {
+        "base_model": "facebook/nllb-200-distilled-600M",
+        "finetune": true,
+        "freeze_encoder": false,
+        "freeze_decoder": false,
+        "batch_size": 64,
+        "num_steps": 10000,
+        "report_every": 500,
+        "validate_every": 500,
+        "patience": 5,
+        "add_new_lang_codes": true,
+        "add_new_tokens": false,
+        "new_lang_size": 128,
+        "IBT": false,
+        "IBT_iterations": 1,
+        "IBT_training_steps": 1000,
+        "IBT_Langs": [],
+        "lang_extensions": {
+            "ashaninka-spanish": "cni",
+            "awajun-spanish": "agr",
+            "aymara-spanish": "aym",
+            "bribri-spanish": "bzd",
+            "chatino-spanish": "ctp",
+            "guarani-spanish": "gn",
+            "nahuatl-spanish": "nah",
+            "otomi-spanish": "oto",
+            "quechua-spanish": "quy",
+            "raramuri-spanish": "tar",
+            "shipibo_konibo-spanish": "shp",
+            "wayuu-spanish": "guc",
+            "wixarika-spanish": "hch"
+        }
+    },
+    "corpora": {
+        "wixarika-spanish": {
+            "wixarika": {
+                "mono_data": [],
+                "lang_code": "hch_Latn",
+                "train": [
+                    "data/wixarika-spanish/train_split_helsinki.hch"
+                ],
+                "dev": [
+                    "data/wixarika-spanish/dev_split_helsinki.hch"
+                ],
+                "test": [
+                    "data/wixarika-spanish/dev.hch"
+                ],
+                "permutation": 0
+            },
+            "es": {
+                "lang_code": "es_Latn",
+                "train": [
+                    "data/wixarika-spanish/train_split_helsinki.es"
+                ],
+                "dev": [
+                    "data/wixarika-spanish/dev_split_helsinki.es"
+                ],
+                "test": [
+                    "data/wixarika-spanish/dev.es"
+                ],
+                "permutation": 0
+            }
+        }
+    },
+    "bitexts": [
+        {
+            "corpus": "wixarika-spanish",
+            "src": "wixarika",
+            "tgt": "es",
+            "train_lines": null
+        }
+    ]
+}
